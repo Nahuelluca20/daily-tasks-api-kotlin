@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS users
 (
     id
-    SERIAL
+    UUID
     PRIMARY
     KEY,
     name

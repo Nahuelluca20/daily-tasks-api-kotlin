@@ -1,10 +1,12 @@
 package com.dailytasksbe.dailytasksbe.dto
 
+import java.util.*
+
 data class User(
-    val id: Long?,
+    val id: UUID?,
     val name: String,
     val username: String,
-    val age: Int,
+    val age: String,
     val email: String,
     val password: String,
 )

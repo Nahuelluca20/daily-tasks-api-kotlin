@@ -1,0 +1,12 @@
+### Post "First User"
+
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "Arthur",
+  "username": "arthur_rdr2",
+  "age": 36,
+  "email": "rdr2@gmailñ.com",
+  "password": "morgan_rdr2"
+}

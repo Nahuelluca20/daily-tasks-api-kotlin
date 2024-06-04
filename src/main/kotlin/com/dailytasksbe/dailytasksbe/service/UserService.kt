@@ -3,14 +3,27 @@ package com.dailytasksbe.dailytasksbe.service
 import com.dailytasksbe.dailytasksbe.dto.User
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
-class UserService(private val jdbcTemplate: JdbcTemplate) {
-    fun findUsers(): List<User> {
-        return listOf(
-            User(312321, "Nahuel", "nhl", 20, "nahuel4@luca.com", password = "dasdas"),
-            User(312321, "Luca", "nhl_1", 20, "nahuel3@luca.com", password = "dasdasdas"),
-            User(312321, "Fernanod", "nhl_2", 20, "nahuel2@luca.com", password = "dasdasdas")
+class UserService(val db: JdbcTemplate) {
+    fun findUsers(): List<User> = db.query("select * from users") { rs, _ ->
+        User(
+            UUID.fromString(rs.getString("id")),
+            rs.getString("name"),
+            rs.getInt("age").toString(),
+            rs.getString("username"),
+            rs.getString("email"),
+            rs.getString("password")
+        )
+    }
+
+
+    fun postUser(user: User) {
+        val id = user.id ?: UUID.randomUUID()
+        db.update(
+            "INSERT INTO users VALUES ( ?, ?, ?, ?, ?, ? )",
+            id, user.name, user.username, user.age, user.email, user.password,
         )
     }
 }
