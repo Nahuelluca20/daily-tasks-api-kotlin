@@ -1,10 +1,13 @@
 package com.dailytasksbe.dailytasksbe.service
 
+import com.dailytasksbe.dailytasksbe.dto.UpdatedUser
 import com.dailytasksbe.dailytasksbe.dto.User
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.query
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.internal.impl.util.ModuleVisibilityHelper.EMPTY
 
 
 @Service
@@ -43,21 +46,37 @@ class UserService(val db: JdbcTemplate) {
         )
     }
 
-    fun updateUser(user: User, id: UUID?): User? {
-        if (user.id != id || id == null) {
+    fun updateUser(user: UpdatedUser, id: UUID?): String? {
+        if (id == null || id.toString().length < 0) {
             return null
         }
 
-        val rowsUpdated = db.update(
-            "INSERT INTO users VALUES ( ?, ?, ?, ?, ?, ? )",
-            user.id,
-            user.name,
-            user.username,
-            user.age,
-            user.email,
-            user.password
-        )
+        var addToQuery = ""
+        var addValues = arrayOf<Any?>()
 
-        return if (rowsUpdated > 0) user else null
+        for (prop in UpdatedUser::class.memberProperties) {
+            /*println("${prop.name} = ${prop.get(user)}")*/
+            if (prop.get(user) != null) {
+                addToQuery += "${prop.name} = ?"
+                addValues += prop.get(user)
+                println(addValues)
+            }
+        }
+
+        /*val rowsUpdated = db.update(
+            "INSERT INTO users VALUES ( ?, ?, ?, ?, ?, ? )",
+            id, user.name, user.username, user.age, user.email, user.password
+        )*/
+
+        return user.name ?: ""
+        /*return if (rowsUpdated > 0) user else null*/
+    }
+}
+
+
+fun VerifyDataUpdated(updatedUser: UpdatedUser) {
+    when {
+        updatedUser.name != null -> print("hola")
+
     }
 }

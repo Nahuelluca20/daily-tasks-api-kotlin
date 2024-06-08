@@ -12,9 +12,9 @@ data class User(
 )
 
 data class UpdatedUser(
-    val name: String,
-    val username: String,
-    val age: Int,
-    val password: String,
-    val email: String,
+    val name: String?,
+    val username: String?,
+    val age: Int?,
+    val password: String?,
+    val email: String?,
 )

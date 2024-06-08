@@ -1,5 +1,6 @@
 package com.dailytasksbe.dailytasksbe.controllers
 
+import com.dailytasksbe.dailytasksbe.dto.UpdatedUser
 import com.dailytasksbe.dailytasksbe.dto.User
 import com.dailytasksbe.dailytasksbe.service.UserService
 import org.springframework.http.HttpStatus
@@ -33,13 +34,34 @@ class UserController(val service: UserService) {
     }
 
 
-    @PutMapping("users/{id}")
-    fun update(@RequestBody user: User, @PathVariable id: UUID): ResponseEntity<Any> {
+    /*@PutMapping("users/{id}")
+    fun update(@RequestBody user: UpdatedUser, @PathVariable id: UUID): ResponseEntity<Any> {
         val userUpdated = service.updateUser(user, id)
-        if (userUpdated == null) {
+        if (userUpdated != null) {
+            return ResponseEntity.ok(userUpdated)
+        } else {
+            return ResponseEntity.badRequest().body("Failed to update user with id: $id")
+        }
+    }*/
+
+    @PutMapping("users/{id}")
+    fun update(@RequestBody user: UpdatedUser, @PathVariable id: UUID): ResponseEntity<Any> {
+        val userUpdated = service.updateUser(user, id)
+        if (userUpdated != null) {
             return ResponseEntity.ok(userUpdated)
         } else {
             return ResponseEntity.badRequest().body("Failed to update user with id: $id")
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
