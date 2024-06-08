@@ -34,23 +34,13 @@ class UserController(val service: UserService) {
     }
 
 
-    /*@PutMapping("users/{id}")
-    fun update(@RequestBody user: UpdatedUser, @PathVariable id: UUID): ResponseEntity<Any> {
-        val userUpdated = service.updateUser(user, id)
-        if (userUpdated != null) {
-            return ResponseEntity.ok(userUpdated)
-        } else {
-            return ResponseEntity.badRequest().body("Failed to update user with id: $id")
-        }
-    }*/
-
     @PutMapping("users/{id}")
     fun update(@RequestBody user: UpdatedUser, @PathVariable id: UUID): ResponseEntity<Any> {
         val userUpdated = service.updateUser(user, id)
-        if (userUpdated != null) {
-            return ResponseEntity.ok(userUpdated)
+        return if (userUpdated != null) {
+            ResponseEntity.ok().body("User with id: $id updated")
         } else {
-            return ResponseEntity.badRequest().body("Failed to update user with id: $id")
+            ResponseEntity.badRequest().body("Failed to update user with id: $id")
         }
     }
 }

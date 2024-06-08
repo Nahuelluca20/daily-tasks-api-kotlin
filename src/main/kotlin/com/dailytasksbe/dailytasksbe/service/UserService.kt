@@ -2,6 +2,7 @@ package com.dailytasksbe.dailytasksbe.service
 
 import com.dailytasksbe.dailytasksbe.dto.UpdatedUser
 import com.dailytasksbe.dailytasksbe.dto.User
+import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.query
 import org.springframework.stereotype.Service
@@ -46,37 +47,36 @@ class UserService(val db: JdbcTemplate) {
         )
     }
 
-    fun updateUser(user: UpdatedUser, id: UUID?): String? {
+    fun updateUser(user: UpdatedUser, id: UUID?): Int? {
         if (id == null || id.toString().length < 0) {
             return null
         }
 
-        var addToQuery = ""
-        var addValues = arrayOf<Any?>()
+        var addToQuery = "UPDATE users SET "
+        val addValues = mutableListOf<Any?>()
 
         for (prop in UpdatedUser::class.memberProperties) {
-            /*println("${prop.name} = ${prop.get(user)}")*/
-            if (prop.get(user) != null) {
+            val value = prop.get(user)
+            if (value != null) {
+                if (addValues.isNotEmpty()) {
+                    addToQuery += ", "
+                }
                 addToQuery += "${prop.name} = ?"
-                addValues += prop.get(user)
-                println(addValues)
+                addValues.add(value)
             }
         }
 
-        /*val rowsUpdated = db.update(
-            "INSERT INTO users VALUES ( ?, ?, ?, ?, ?, ? )",
-            id, user.name, user.username, user.age, user.email, user.password
-        )*/
-
-        return user.name ?: ""
-        /*return if (rowsUpdated > 0) user else null*/
-    }
-}
+        addToQuery += " WHERE id = ?"
+        addValues.add(id)
 
 
-fun VerifyDataUpdated(updatedUser: UpdatedUser) {
-    when {
-        updatedUser.name != null -> print("hola")
 
+        return try {
+            val rowsAffected = db.update(addToQuery, *addValues.toTypedArray())
+            rowsAffected
+        } catch (e: DataAccessException) {
+            println("Error updating user: ${e.message}")
+            null
+        }
     }
 }
