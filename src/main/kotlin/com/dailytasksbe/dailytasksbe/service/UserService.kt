@@ -6,34 +6,19 @@ import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.query
 import org.springframework.stereotype.Service
+import java.sql.ResultSet
 import java.util.*
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.internal.impl.util.ModuleVisibilityHelper.EMPTY
-
 
 @Service
 class UserService(val db: JdbcTemplate) {
     fun findUsers(): List<User> = db.query("SELECT * FROM users") { rs, _ ->
-        User(
-            UUID.fromString(rs.getString("id")),
-            rs.getString("name"),
-            rs.getString("username"),
-            rs.getInt("age"),
-            rs.getString("email"),
-            rs.getString("password")
-        )
+        mapRowToCollection(rs)
     }
 
     fun findUserById(userId: UUID): User? {
         val users = db.query("SELECT * FROM users WHERE id = ?", userId) { rs, _ ->
-            User(
-                UUID.fromString(rs.getString("id")),
-                rs.getString("name"),
-                rs.getString("username"),
-                rs.getInt("age"),
-                rs.getString("email"),
-                rs.getString("password")
-            )
+            mapRowToCollection(rs)
         }
 
         return users.firstOrNull()
@@ -78,5 +63,16 @@ class UserService(val db: JdbcTemplate) {
             println("Error updating user: ${e.message}")
             null
         }
+    }
+
+    private fun mapRowToCollection(rs: ResultSet): User {
+        return  User(
+            UUID.fromString(rs.getString("id")),
+            rs.getString("name"),
+            rs.getString("username"),
+            rs.getInt("age"),
+            rs.getString("email"),
+            rs.getString("password")
+        )
     }
 }
