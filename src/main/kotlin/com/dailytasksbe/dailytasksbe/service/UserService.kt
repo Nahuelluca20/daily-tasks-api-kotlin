@@ -33,32 +33,22 @@ class UserService(val db: JdbcTemplate) {
     }
 
     fun updateUser(user: UpdatedUser, id: UUID?): Int? {
-        if (id == null || id.toString().length < 0) {
-            return null
-        }
+        id ?: return null
 
-        var addToQuery = "UPDATE users SET "
         val addValues = mutableListOf<Any?>()
-
-        for (prop in UpdatedUser::class.memberProperties) {
-            val value = prop.get(user)
-            if (value != null) {
-                if (addValues.isNotEmpty()) {
-                    addToQuery += ", "
-                }
-                addToQuery += "${prop.name} = ?"
-                addValues.add(value)
-            }
+        val addToQuery = buildString {
+            append("UPDATE users SET ")
+            UpdatedUser::class.memberProperties.filter { it.get(user) != null }.joinToString(", ") {
+                addValues.add(it.get(user))
+                "${it.name} = ?"
+            }.let { append(it) }
+            append(" WHERE id = ?")
         }
 
-        addToQuery += " WHERE id = ?"
         addValues.add(id)
 
-
-
         return try {
-            val rowsAffected = db.update(addToQuery, *addValues.toTypedArray())
-            rowsAffected
+            db.update(addToQuery, *addValues.toTypedArray())
         } catch (e: DataAccessException) {
             println("Error updating user: ${e.message}")
             null
