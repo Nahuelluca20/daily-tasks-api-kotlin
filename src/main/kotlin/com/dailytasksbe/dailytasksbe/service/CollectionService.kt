@@ -31,6 +31,10 @@ class CollectionService(val db: JdbcTemplate) {
         )
     }
 
+    fun deleteCollectionById(collectionId: UUID): Boolean {
+        val rowsAffected = db.update("DELETE FROM collections WHERE id = ?", collectionId)
+        return rowsAffected > 0
+    }
     fun updateCollection(collection: UpdatedCollection, id: UUID?): Int? {
         id ?: return null
 

@@ -29,8 +29,13 @@ class CollectionController(val service: CollectionService) {
     }
 
     @PostMapping("/collections")
-    fun postCollections(@RequestBody collection: Collection) {
-        service.postCollection(collection)
+    fun postCollections(@RequestBody collection: Collection): ResponseEntity<Any> {
+        return try {
+            service.postCollection(collection)
+            ResponseEntity(HttpStatus.CREATED)
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
+        }
     }
 
     @PutMapping("/collections/{id}")
@@ -41,6 +46,15 @@ class CollectionController(val service: CollectionService) {
             ResponseEntity.ok().body("Collection with id: $id updated")
         } else {
             ResponseEntity.badRequest().body("Failed to update user with id: $id")
+        }
+    }
+
+    @DeleteMapping("/collections/{id}")
+    fun deleteCollection(@PathVariable("id") id: UUID): ResponseEntity<Any> {
+        return if (service.deleteCollectionById(id)) {
+            ResponseEntity(HttpStatus.NO_CONTENT)
+        } else {
+            ResponseEntity("Collection with ID $id not found", HttpStatus.NOT_FOUND)
         }
     }
 }
