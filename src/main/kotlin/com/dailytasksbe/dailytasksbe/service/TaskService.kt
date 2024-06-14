@@ -46,7 +46,7 @@ class TaskService(val db: JdbcTemplate) {
 
         val addValues = mutableListOf<Any?>()
         val addToQuery = buildString {
-            append("UPDATE collections SET ")
+            append("UPDATE tasks SET ")
             UpdatedTask::class.memberProperties.filter { it.get(updatedTask) != null }.joinToString(", ") {
                 addValues.add(it.get(updatedTask))
                 "${it.name} = ?"
@@ -54,12 +54,12 @@ class TaskService(val db: JdbcTemplate) {
             append(" WHERE id = ?")
         }
 
-        addValues.add(updatedTask)
+        addValues.add(taskId)
 
         return try {
             db.update(addToQuery, *addValues.toTypedArray())
         } catch (e: DataAccessException) {
-            println("Error updating collection: ${e.message}")
+            println("Error updating tasks: ${e.message}")
             null
         }
     }

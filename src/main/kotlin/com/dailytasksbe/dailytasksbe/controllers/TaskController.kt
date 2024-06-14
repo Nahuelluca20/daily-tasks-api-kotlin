@@ -2,6 +2,7 @@ package com.dailytasksbe.dailytasksbe.controllers
 
 import com.dailytasksbe.dailytasksbe.dto.GetTask
 import com.dailytasksbe.dailytasksbe.dto.Task
+import com.dailytasksbe.dailytasksbe.dto.UpdatedTask
 import com.dailytasksbe.dailytasksbe.service.TaskService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -46,8 +47,17 @@ class TaskController(val service: TaskService) {
     }
 
     @PutMapping("/tasks/{taskId}")
-    fun updateTaskInCollection(@PathVariable("taskId") taskId: UUID, @RequestBody task: Task): String {
-        return "Task by id: $taskId"
+    fun updateTaskInCollection(
+        @PathVariable("taskId") taskId: UUID,
+        @RequestBody task: UpdatedTask
+    ): ResponseEntity<Any> {
+        val tasksUpdated = service.updateTask(task, taskId)
+
+        return if (tasksUpdated != null) {
+            ResponseEntity.ok().body("Collection with id: $taskId updated")
+        } else {
+            ResponseEntity.badRequest().body("Failed to update collection with id: $taskId")
+        }
     }
 
     @DeleteMapping("/tasks/{id}")
