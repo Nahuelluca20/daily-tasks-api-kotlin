@@ -38,6 +38,20 @@ class CollectionController(val service: CollectionService) {
         }
     }
 
+    @GetMapping("/collections/{id}")
+    fun getCollectionById(@PathVariable("id") id: UUID): ResponseEntity<Any> {
+        return try {
+            val collection = service.findInCollectionById(id)
+            if (collection != null) {
+                ResponseEntity.ok(collection)
+            } else {
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Collection with id $id not found")
+            }
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body("Invalid UUID format: $id")
+        }
+    }
+
     @PutMapping("/collections/{id}")
     fun updateCollection(@RequestBody collection: UpdatedCollection, @PathVariable id: UUID): ResponseEntity<Any> {
         val collectionUpdated = service.updateCollection(collection, id)
@@ -45,7 +59,7 @@ class CollectionController(val service: CollectionService) {
         return if (collectionUpdated != null) {
             ResponseEntity.ok().body("Collection with id: $id updated")
         } else {
-            ResponseEntity.badRequest().body("Failed to update user with id: $id")
+            ResponseEntity.badRequest().body("Failed to update collection with id: $id")
         }
     }
 

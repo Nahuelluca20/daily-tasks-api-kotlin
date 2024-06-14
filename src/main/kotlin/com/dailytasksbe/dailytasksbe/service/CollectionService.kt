@@ -24,6 +24,15 @@ class CollectionService(val db: JdbcTemplate) {
         return collections.firstOrNull()
     }
 
+    fun findInCollectionById(collectionId: UUID): Collection? {
+        val collections = db.query("SELECT * FROM collections WHERE id = ?", collectionId) { rs, _ ->
+            mapRowToCollection(rs)
+        }
+
+        return collections.firstOrNull()
+    }
+
+
     fun postCollection(collection: Collection) {
         db.update(
             "INSERT INTO collections (name, banner, user_id) VALUES (?, ?, ?)",
@@ -31,10 +40,6 @@ class CollectionService(val db: JdbcTemplate) {
         )
     }
 
-    fun deleteCollectionById(collectionId: UUID): Boolean {
-        val rowsAffected = db.update("DELETE FROM collections WHERE id = ?", collectionId)
-        return rowsAffected > 0
-    }
     fun updateCollection(collection: UpdatedCollection, id: UUID?): Int? {
         id ?: return null
 
@@ -56,6 +61,11 @@ class CollectionService(val db: JdbcTemplate) {
             println("Error updating collection: ${e.message}")
             null
         }
+    }
+
+    fun deleteCollectionById(collectionId: UUID): Boolean {
+        val rowsAffected = db.update("DELETE FROM collections WHERE id = ?", collectionId)
+        return rowsAffected > 0
     }
 
     private fun mapRowToCollection(rs: ResultSet): Collection {
