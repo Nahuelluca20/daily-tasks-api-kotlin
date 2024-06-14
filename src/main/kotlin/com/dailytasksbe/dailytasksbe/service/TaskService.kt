@@ -65,7 +65,7 @@ class TaskService(val db: JdbcTemplate) {
     }
 
     fun deleteTask(taskId: UUID): Boolean {
-        val rowsAffected = db.update("DELETE FROM tasks WHERE task_id = ?", taskId)
+        val rowsAffected = db.update("DELETE FROM tasks WHERE id = ?", taskId)
         return rowsAffected > 0
     }
 

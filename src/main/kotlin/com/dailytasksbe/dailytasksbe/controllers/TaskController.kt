@@ -61,7 +61,11 @@ class TaskController(val service: TaskService) {
     }
 
     @DeleteMapping("/tasks/{id}")
-    fun deleteTaskById(@PathVariable("id") id: UUID): String {
-        return "Task by id: $id"
+    fun deleteTaskById(@PathVariable("id") id: UUID): ResponseEntity<Any> {
+        return if (service.deleteTask(id)) {
+            ResponseEntity(HttpStatus.NO_CONTENT)
+        } else {
+            ResponseEntity("Collection with ID $id not found", HttpStatus.NOT_FOUND)
+        }
     }
 }
