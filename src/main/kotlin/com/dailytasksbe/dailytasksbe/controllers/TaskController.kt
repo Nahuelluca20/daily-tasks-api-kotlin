@@ -1,5 +1,6 @@
 package com.dailytasksbe.dailytasksbe.controllers
 
+import com.dailytasksbe.dailytasksbe.dto.GetTask
 import com.dailytasksbe.dailytasksbe.dto.Task
 import com.dailytasksbe.dailytasksbe.service.TaskService
 import org.springframework.http.HttpStatus
@@ -24,7 +25,7 @@ class TaskController(val service: TaskService) {
     }
 
     @GetMapping("/tasks/users/{userId}")
-    fun getTasksByUserId(@PathVariable("userId") userId: UUID): List<Task> = service.getTasksByUserId(userId)
+    fun getTasksByUserId(@PathVariable("userId") userId: UUID): List<GetTask> = service.getTasksByUserId(userId)
 
     @PostMapping("/tasks/collection/{collectionId}")
     fun addTaskInCollection(
@@ -32,7 +33,7 @@ class TaskController(val service: TaskService) {
         @RequestBody task: Task
     ): ResponseEntity<Any> {
         return try {
-            val newTask = service.postTask(task, collectionId)
+            val newTask = service.postTask(task)
             if (newTask != null) {
                 ResponseEntity(HttpStatus.CREATED)
             } else {

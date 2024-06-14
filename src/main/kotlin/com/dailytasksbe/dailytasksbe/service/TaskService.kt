@@ -1,5 +1,6 @@
 package com.dailytasksbe.dailytasksbe.service
 
+import com.dailytasksbe.dailytasksbe.dto.GetTask
 import com.dailytasksbe.dailytasksbe.dto.Task
 import com.dailytasksbe.dailytasksbe.dto.UpdatedTask
 import org.springframework.dao.DataAccessException
@@ -12,29 +13,28 @@ import kotlin.reflect.full.memberProperties
 
 @Service
 class TaskService(val db: JdbcTemplate) {
-    fun getTaskById(taskId: UUID): Task? {
-        val task = db.query("SELECT * FROM tasks WHERE id = ?", taskId) { rs, _ ->
+    fun getTaskById(taskId: UUID): GetTask? {
+        val task = db.query("SELECT id, title, description, date, priority, deadline FROM tasks WHERE id = ?", taskId) { rs, _ ->
             mapRowToCollection(rs)
         }
         return task.firstOrNull()
     }
 
-    fun getTasksByUserId(userId: UUID): List<Task> =
-        db.query("SELECT * FROM task WHERE user_id = ?", userId) { rs, _ ->
+    fun getTasksByUserId(userId: UUID): List<GetTask> =
+        db.query("SELECT id, title, description, date, priority, deadline FROM tasks WHERE user_id = ?", userId) { rs, _ ->
             mapRowToCollection(rs)
         }
 
-    fun postTask(task: Task, collectionId: UUID?): Boolean? {
-        collectionId ?: return null
+    fun postTask(task: Task): Boolean? {
 
         val newTask = db.update(
-            "INSERT INTO tasks (title, description, date, priority, deadline, colletion_id, user_id) VALUES (?, ?. ?. ?. ?. ?. ?)",
+            "INSERT INTO tasks (title, description, date, priority, deadline, collection_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
             task.title,
             task.description,
             task.date,
             task.priority,
             task.deadLine,
-            collectionId,
+            task.collectionId,
             task.userId
         )
 
@@ -69,16 +69,14 @@ class TaskService(val db: JdbcTemplate) {
         return rowsAffected > 0
     }
 
-    private fun mapRowToCollection(rs: ResultSet): Task {
-        return Task(
+    private fun mapRowToCollection(rs: ResultSet): GetTask {
+        return GetTask(
             UUID.fromString(rs.getString("id")),
             rs.getString("title"),
             rs.getString("description"),
             rs.getDate("date"),
             rs.getString("priority"),
-            rs.getDate("deadline"),
-            UUID.fromString(rs.getString("colletion_id")),
-            UUID.fromString(rs.getString("user_id")),
+            rs.getDate("deadline")
         )
     }
 }
